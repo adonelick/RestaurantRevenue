@@ -29,6 +29,20 @@ class Knn_semi:
         self.h1 = None
         self.h2 = None
     
+    """
+    fit function
+        
+    fits the data to the two models h1 and h2
+    
+    Inputs:
+        L           -   labeled data set
+        U           -   unlabeled data set
+        max_it      -   the max number of iterations before giving up on convergence
+        p1, p2      -   the two distance metrics used for training kNNs 
+                        (should be different)
+        pool_size   -   the numbered of unlabeled data points that will try and be
+                        fitted and added to the training set. 
+    """
     def fit(self, L, U, max_it=1000, p1='euclidean',p2='mahalanobis',pool_size=100):
         metrics = [p1,p2]
         # Initialize Training Sets
@@ -101,6 +115,16 @@ class Knn_semi:
         self.h1 = kNNs[0]
         self.h2 = kNNs[0]
         
+    """
+    Predict function
+    
+    Input:
+        X   -   set of labels that you want to predict from the 
+                kNN semi supervised model
+    
+    Output:
+        list of predictions
+    """
     def predict(self, X):
         
         h1_p = self.h1.predict(X)
@@ -109,7 +133,20 @@ class Knn_semi:
         results = [(x + y)/2.0 for x, y in zip(h1_p, h2_p)]
         
         return results
-        
+       
+""" 
+Union function
+
+A U {(x,y)}
+
+Input:
+    A   -   A data set with X and y values
+    x   -   new set of labels you want to be unioned into A
+    y   -   the true value for the x wanting to be unioned into A
+    
+Output:
+    data set with X and y values
+""" 
 def Union(A,x,y):
     # get shape of A and B
     contains = False
