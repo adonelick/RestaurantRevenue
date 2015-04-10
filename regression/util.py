@@ -26,12 +26,12 @@ mpl.axes.labelsize = 14
 
 class Data :
     
-    def __init__(self) :
+    def __init__(self, X=None, y=None) :
         """Data class"""
         
         # n = number of examples, d = dimensionality
-        self.X = None    # nxd array
-        self.y = None    # rank-1 array (think row vector)
+        self.X = X    # nxd array
+        self.y = y    # rank-1 array (think row vector)
     
     def load(self, filename, labeled=True) :
         """Load csv file into X array of features and y array of labels"""
@@ -43,7 +43,7 @@ class Data :
         
         # load data
         with open(f, 'r') as fid :
-            data = np.loadtxt(fid, delimiter=",",min_itemsize=40, dtype=None)
+            data = np.genfromtxt(fid, delimiter=",", dtype=None)
         
         # separate features and labels
         if labeled:

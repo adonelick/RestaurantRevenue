@@ -47,7 +47,8 @@ class Knn_semi:
         # Initialize Training Sets
         Ls = [L, L]
         # Select pool of unlabeled data
-        Upool = np.random.choice(U, pool_size, replace=False)
+        Upool_indexs = np.random.choice(len(U), pool_size, replace=False)
+        Upool = [U[i] for i in Upool_indexs]
         
         # Create the two kNN regressors
         kNNs = [KNeighborsRegressor(n_neighbors=self.k,metric=m) for m in metrics]
@@ -109,7 +110,8 @@ class Knn_semi:
             Ls = newLs
             for i in [0,1]:
                 kNNs[i].fit(Ls[i].X, Ls[i].y)
-            Upool = np.random.choice(U, pool_size, replace=False)
+            Upool_indexs = np.random.choice(len(U), pool_size, replace=False)
+            Upool = [U[i] for i in Upool_indexs]
             
         self.h1 = kNNs[0]
         self.h2 = kNNs[0]
