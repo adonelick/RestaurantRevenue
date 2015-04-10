@@ -34,8 +34,8 @@ class Knn_semi:
     fits the data to the two models h1 and h2
     
     Inputs:
-        L           -   labeled data set
-        U           -   unlabeled data set
+        L           -   labeled data set of type data set with X and y values
+        U           -   unlabeled data set in list form
         max_it      -   the max number of iterations before giving up on convergence
         p1, p2      -   the two distance metrics used for training kNNs 
                         (should be different)
