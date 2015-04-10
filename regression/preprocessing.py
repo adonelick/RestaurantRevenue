@@ -8,7 +8,14 @@ Final Project: Predicting Restaraunt Revenue
 This file is meant to clean up the data we are given.
 
 """
-
+class Data :
+    
+    def __init__(self, X, y) :
+        """Data class"""
+        
+        # n = number of examples, d = dimensionality
+        self.X = X    # nxd array
+        self.y = y    # rank-1 array (think row vector)
 
 def preprocessData(trainData, testData, saveLocation):
     """

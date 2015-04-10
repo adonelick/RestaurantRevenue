@@ -12,7 +12,6 @@ K nearest neighbors.
 
 import numpy as np
 from sklearn.neighbors import KNeighborsRegressor
-from operator import add
 
 """
 This is a form of semi supervised learning using the k Nearest Neighbors 
