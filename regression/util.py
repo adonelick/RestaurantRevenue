@@ -43,7 +43,7 @@ class Data :
         
         # load data
         with open(f, 'r') as fid :
-            data = np.loadtxt(fid, delimiter=",", dType=None)
+            data = np.loadtxt(fid, delimiter=",",min_itemsize=40, dtype=None)
         
         # separate features and labels
         if labeled:
