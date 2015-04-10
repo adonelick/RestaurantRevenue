@@ -11,6 +11,7 @@ This file is meant to clean up the data we are given.
 
 import numpy as np
 from util import *
+import time
 
 def preprocessData(trainData, testData, saveLocation):
     """
@@ -38,7 +39,8 @@ def preprocessData(trainData, testData, saveLocation):
 
     newTrainData = Data(np.copy(trainData.X), np.copy(trainData.y))
     for i, row in enumerate(trainData.X):
-
+        if i is 0:
+            continue
         # Converts the city into a number
         realCity = 0
 
@@ -49,13 +51,22 @@ def preprocessData(trainData, testData, saveLocation):
         cityType = 0
         if row[3] == 'Big Cities':
             cityType = 1
+            
+        row4 = 0
+        if row[4] == 'IL':
+            row4 = 1
 
         newTrainData.X[i][1] = realTime
         newTrainData.X[i][2] = realCity
         newTrainData.X[i][3] = cityType
-
+        newTrainData.X[i][4] = row4
+    newTrainData.X = newTrainData.X[1:].astype(np.float)
+    newTrainData.y = newTrainData.y[1:].astype(np.float)
+    
     newTestData = np.copy(testData)
     for i, row in enumerate(testData):
+        if i is 0:
+            continue
         # Converts the city into a number
         realCity = 0
 
@@ -66,13 +77,18 @@ def preprocessData(trainData, testData, saveLocation):
         cityType = 0
         if row[3] == 'Big Cities':
             cityType = 1
+            
+        row4 = 0
+        if row[4] == 'IL':
+            row4 = 1
 
         newTestData[i][1] = realTime
         newTestData[i][2] = realCity
         newTestData[i][3] = cityType
+        newTestData[i][4] = row4
 
 
-    return newTrainData, newTestData
+    return newTrainData, newTestData[1:].astype(np.float)
 
 
 
