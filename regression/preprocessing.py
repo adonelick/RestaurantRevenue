@@ -10,21 +10,7 @@ This file is meant to clean up the data we are given.
 """
 
 import numpy as np
-
-class Data :
-    
-    def __init__(self, X, y) :
-        """Data class"""
-        
-        # n = number of examples, d = dimensionality
-        self.X = X    # nxd array
-        self.y = y    # rank-1 array (think row vector)
-
-    def setX(self, X):
-        self.X = X
-
-    def set_y(self, y):
-        self.y = y
+from util import *
 
 def preprocessData(trainData, testData, saveLocation):
     """
@@ -34,63 +20,59 @@ def preprocessData(trainData, testData, saveLocation):
     in the location specified, and returned by the function.
     """
 
-        # Search the file for any values which are non-numeric, 
-        # and create the necessary lookup tables from 
-        # the non-numeric values to numbers
+    # Search the file for any values which are non-numeric, 
+    # and create the necessary lookup tables from 
+    # the non-numeric values to numbers
 
-        cityNames = {}
+    cityNames = {}
 
-        firstRow = True
-        for row in testData:
-            if firstRow:
-                firstRow = False
-                continue
+    firstRow = True
+    for row in testData:
+        if firstRow:
+            firstRow = False
+            continue
 
-            if not cityNames.has_key(row[2]):
-                cityNames[row[2]] = len(cityNames)
+        if not cityNames.has_key(row[2]):
+            cityNames[row[2]] = len(cityNames)
 
 
-        newTrainData = Data(np.copy(trainData.X), np.copy(trainData.y))
-        for row in trainData.X:
+    newTrainData = Data(np.copy(trainData.X), np.copy(trainData.y))
+    for i, row in enumerate(trainData.X):
 
-            # Converts the city into a number
-            realCity = 0
+        # Converts the city into a number
+        realCity = 0
 
-            # Converts the time from a string into a number
-            month, day, year = ''.join(row[1][0:2]), ''.join(row[1][3:5]), ''.join(row[1][6:10])
-            realTime = time.mktime(time.strptime(month + " " + day + " " + year, "%m %d %Y"))
+        # Converts the time from a string into a number
+        month, day, year = ''.join(row[1][0:2]), ''.join(row[1][3:5]), ''.join(row[1][6:10])
+        realTime = time.mktime(time.strptime(month + " " + day + " " + year, "%m %d %Y"))
 
-            cityType = 0
-            if row[3] == 'Big Cities':
-                cityType = 1
+        cityType = 0
+        if row[3] == 'Big Cities':
+            cityType = 1
 
-            newTrainData.X[1] = realTime
-            newTrainData.X[2] = realCity
-            newTrainData.X[3] = cityType
+        newTrainData.X[i][1] = realTime
+        newTrainData.X[i][2] = realCity
+        newTrainData.X[i][3] = cityType
 
-        newTestData = np.copy(testData)
-        for row in testData.X:
+    newTestData = np.copy(testData)
+    for i, row in enumerate(testData):
+        # Converts the city into a number
+        realCity = 0
 
-            # Converts the city into a number
-            realCity = 0
+        # Converts the time from a string into a number
+        month, day, year = ''.join(row[1][0:2]), ''.join(row[1][3:5]), ''.join(row[1][6:10])
+        realTime = time.mktime(time.strptime(month + " " + day + " " + year, "%m %d %Y"))
 
-            # Converts the time from a string into a number
-            month, day, year = ''.join(row[1][0:2]), ''.join(row[1][3:5]), ''.join(row[1][6:10])
-            realTime = time.mktime(time.strptime(month + " " + day + " " + year, "%m %d %Y"))
+        cityType = 0
+        if row[3] == 'Big Cities':
+            cityType = 1
 
-            cityType = 0
-            if row[3] == 'Big Cities':
-                cityType = 1
-
-            newTestData[1] = realTime
-            newTestData[2] = realCity
-            newTestData[3] = cityType
+        newTestData[i][1] = realTime
+        newTestData[i][2] = realCity
+        newTestData[i][3] = cityType
 
 
     return newTrainData, newTestData
 
-
-if __name__ == '__main__':
-    main()
 
 

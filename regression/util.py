@@ -33,7 +33,7 @@ class Data :
         self.X = None    # nxd array
         self.y = None    # rank-1 array (think row vector)
     
-    def load(self, filename) :
+    def load(self, filename, labeled=True) :
         """Load csv file into X array of features and y array of labels"""
         
         # determine filename
@@ -43,11 +43,14 @@ class Data :
         
         # load data
         with open(f, 'r') as fid :
-            data = np.loadtxt(fid, delimiter=",")
+            data = np.loadtxt(fid, delimiter=",", dType=None)
         
         # separate features and labels
-        self.X = data[:,:-1]
-        self.y = data[:,-1] # rank-1 array (think row vector)
+        if labeled:
+            self.X = data[:,:-1]
+            self.y = data[:,-1] # rank-1 array (think row vector)
+        else:
+            self.X = data[:,]
     
     def plot(self) :
         """Plot features and labels"""
@@ -58,8 +61,8 @@ class Data :
         plt.show()
 
 # helper functions
-def load_data(filename) :
+def load_data(filename, labeled=True) :
     """Load csv file into Data class"""
     data = Data()
-    data.load(filename)
+    data.load(filename, labeled)
     return data
