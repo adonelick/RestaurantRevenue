@@ -69,7 +69,7 @@ def preprocessData(trainData, testData, saveLocation):
             newTrainData.X[3] = cityType
 
         newTestData = np.copy(testData)
-        for row in testData.X:
+        for row in testData:
 
             # Converts the city into a number
             realCity = 0
