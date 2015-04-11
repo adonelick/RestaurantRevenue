@@ -31,6 +31,8 @@ def load_all_data():
     """
 
     try:
+        # First, attempt to load the preprocessed training
+        # and testing data from disk
         trainData = load_data(PREPROCESSED_TRAIN_PATH)
         testData = load_data(PREPROCESSED_TEST_PATH, labeled=False).X
 
@@ -38,7 +40,8 @@ def load_all_data():
         trainData.y = trainData.y.astype(np.float)
         testData = testData.astype(np.float)
 
-    except Exception, e:   
+    except Exception, e:
+        # If it doesn't exist yet, create it from the original data
         labeled_data = load_data(TRAIN_PATH)
         unlabeled_data = load_data(TEST_PATH, labeled=False).X
         trainData, testData = preprocessData(labeled_data, unlabeled_data, 
