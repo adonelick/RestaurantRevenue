@@ -20,9 +20,9 @@ TEST_PATH = DATA_PATH + "/test.csv"
 def load_all_data():
     
     labeled_data = load_data(TRAIN_PATH)
-    unlabeled_data = load_data(TEST_PATH, labeled=false).X
+    unlabeled_data = load_data(TEST_PATH, labeled=False).X
     
-    return preprocessing(labeled_data, unlabeled_data)
+    return preprocessData(labeled_data, unlabeled_data)
     
     
     
