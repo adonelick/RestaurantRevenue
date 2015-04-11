@@ -1,3 +1,4 @@
 *.pyc
+*.tmp
 /data/preprocessed_train.csv
 /data/preprocessed_test.csv
