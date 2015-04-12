@@ -15,12 +15,13 @@ from semi_supervised_knn import *
 from sklearn.svm import SVR
 from sklearn import linear_model
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
 
     
 def main():
     
     labeled_data, unlabeled_data = load_all_data()
-    clf = DecisionTreeRegressor()
+    clf = KNeighborsRegressor()
     clf.fit(labeled_data.X, labeled_data.y)
 
     generateOutputFile(clf, unlabeled_data)

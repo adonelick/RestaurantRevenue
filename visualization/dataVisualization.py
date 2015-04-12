@@ -25,8 +25,8 @@ def main():
     
     labeled_data, unlabeled_data = load_all_data()
     pca = PCA(n_components=3)
-    pca.fit(unlabeled_data)
-    transformedData = pca.transform(unlabeled_data)
+    pca.fit(unlabeled_data[:,1:])
+    transformedData = pca.transform(unlabeled_data[:,1:][0:1000])
     
     x = []
     y = []

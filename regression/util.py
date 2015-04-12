@@ -1,5 +1,5 @@
-# author      : Jessica Wu
-# date        : 01/23/2015
+# author      : Jessica Wu, Andrew Donelick, Alex Putman
+# date        : 04/11/2015
 # description : ML utilities
 
 # python libraries
