@@ -4,6 +4,7 @@
 
 # python libraries
 import os
+import csv
 
 # numpy libraries
 import numpy as np
@@ -18,6 +19,14 @@ import matplotlib.pyplot as plt
 
 mpl.lines.width = 2
 mpl.axes.labelsize = 14
+
+# Paths for the data files
+DATA_PATH = "../data"
+TRAIN_PATH = DATA_PATH + "/train.csv"
+TEST_PATH = DATA_PATH + "/test.csv"
+PREPROCESSED_TRAIN_PATH = DATA_PATH + "/preprocessed_train.csv"
+PREPROCESSED_TEST_PATH = DATA_PATH + "/preprocessed_test.csv"
+PREDICTIONS_PATH = DATA_PATH + "/submission.csv"
 
 
 ######################################################################
@@ -66,3 +75,64 @@ def load_data(filename, labeled=True) :
     data = Data()
     data.load(filename, labeled)
     return data
+
+def load_all_data():
+    """
+    Loads in the labeled (training) and unlabeled (testing)
+    data. The function automatically preprocesses the 
+    data according to the preprocessing file.
+
+    :return: (tuple of Data, 2-d numpy array) Preprocessed training/test data
+    """
+
+    try:
+        # First, attempt to load the preprocessed training
+        # and testing data from disk
+        trainData = load_data(PREPROCESSED_TRAIN_PATH)
+        testData = load_data(PREPROCESSED_TEST_PATH, labeled=False).X
+
+        trainData.X = trainData.X.astype(np.float)
+        trainData.y = trainData.y.astype(np.float)
+        testData = testData.astype(np.float)
+
+    except Exception, e:
+        # If it doesn't exist yet, create it from the original data
+        labeled_data = load_data(TRAIN_PATH)
+        unlabeled_data = load_data(TEST_PATH, labeled=False).X
+        trainData, testData = preprocessData(labeled_data, unlabeled_data, 
+                                             PREPROCESSED_TRAIN_PATH, 
+                                             PREPROCESSED_TEST_PATH)
+    
+    return trainData, testData
+
+def generateOutputFile(regressor, unlabeledData):
+    """
+    Generates a file for submission to the Kaggle 
+    website. It has the format:
+
+    Id, Prediction
+    0, value0
+    1, value1
+    ...
+    N, valueN
+
+    :param regressor: a class which has been trained to predict 
+                      revenue given a new, unlabeled sample
+    :param unlabeledData: (2-d numpy array) unlabeled samples
+    :return: (2-d numpy array) revenue predictons
+    """
+
+    predictions = np.array([["Id", "Prediction"]])
+    revenues = regressor.predict(unlabeledData)
+
+    for i, revenue in enumerate(revenues):
+
+        row = np.array([str(i), str(revenue)])
+        predictions = np.append(predictions, [row], axis=0)
+
+    with open(PREDICTIONS_PATH, 'wb') as f:
+        csv.writer(f, delimiter=',').writerows(predictions)
+
+    return predictions
+
+

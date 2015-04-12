@@ -11,45 +11,38 @@ and give us a sense of what regression techniques might
 be useful later in the project.
 
 """
+import sys
+sys.path.append("../regression")
 
-import numpy as np
-from matplotlib import pyplot as plt
-import time
-import csv
+from util import *
+from sklearn.decomposition import PCA
+from mpl_toolkits.mplot3d import Axes3D
 
-DATA_PATH = "../data"
-TRAIN_PATH = DATA_PATH + "/train.csv"
-TEST_PATH = DATA_PATH + "/test.csv"
+
+
 
 def main():
-
     
-    with open(TEST_PATH, 'rb') as dataFile:
+    labeled_data, unlabeled_data = load_all_data()
+    pca = PCA(n_components=3)
+    pca.fit(unlabeled_data)
+    transformedData = pca.transform(unlabeled_data)
+    
+    x = []
+    y = []
+    z = []
 
-        trainReader = csv.reader(dataFile, delimiter=',')
+    for sample in transformedData:
+        x.append(sample[0])
+        y.append(sample[1])
+        z.append(sample[2])
 
-        # Search the file for any values which are non-numeric, 
-        # and create the necessary lookup tables from 
-        # the non-numeric values to numbers
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
 
-        cityNames = {}
+    ax.scatter(x, y, z, c='b')
+    plt.show()
 
-        firstRow = True
-        for row in trainReader:
-            if firstRow:
-                firstRow = False
-                continue
-
-            if not cityNames.has_key(row[2]):
-                cityNames[row[2]] = len(cityNames)
-
-            month, day, year = ''.join(row[1][0:2]), ''.join(row[1][3:5]), ''.join(row[1][6:10])
-            #print time.mktime(time.strptime(month + " " + day + " " + year, "%m %d %Y"))
-
-            if row[3] == "Big Cities":
-                print 1
-            else:
-                print 0
 
 
 

@@ -88,7 +88,8 @@ def preprocessData(trainData, testData, trainPath=None, testPath=None):
         cityGroup = 0
         if row[3] == 'Big Cities':
             cityGroup = 1
-            
+        
+        # No idea what this is... 
         dataType = 0
         if row[4] == 'IL':
             dataType = 1
