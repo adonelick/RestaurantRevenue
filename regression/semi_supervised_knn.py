@@ -42,7 +42,7 @@ class Knn_semi:
         pool_size   -   the numbered of unlabeled data points that will try and be
                         fitted and added to the training set. 
     """
-    def fit(self, L, U, max_it=1000, p1='euclidean',p2='mahalanobis',pool_size=100):
+    def fit(self, L, U, max_it=1000, p1='euclidean',p2='chebyshev',pool_size=100):
         metrics = [p1,p2]
         # Initialize Training Sets
         Ls = [L, L]
@@ -63,6 +63,7 @@ class Knn_semi:
             pi = [[],[]]
             # for each training and regressor set
             for j in [0,1]:
+                print j
                 Upool_ys = kNNs[j].predict(Upool)
                 # get the neighbors of each unlabeled point - as indexs of the orig lists
                 Upool_ns = kNNs[j].kneighbors(Upool, return_distance=False)
@@ -70,15 +71,15 @@ class Knn_semi:
                 deltas = []
                 for r in range(len(Upool)):
                     alt_kNN = KNeighborsRegressor(n_neighbors=self.k,metric=metrics[j])
-                    Lj_alt = Union(L[j], Upool[r], Upool_ys[r])
+                    Lj_alt = Union(Ls[j], Upool[r], Upool_ys[r])
                     alt_kNN.fit(Lj_alt.X, Lj_alt.y)
                     
                     neighbors_indexs = Upool_ns[r]
-                    neighbors = [L[j].X[n] for n in neighbors_indexs]
+                    neighbors = [Ls[j].X[n] for n in neighbors_indexs]
                     
                     kNN_n_ys = kNNs[j].predict(neighbors)
                     altkNN_n_ys = alt_kNN.predict(neighbors)
-                    real_n_ys = [L[j].y[n] for n in neighbors_indexs]
+                    real_n_ys = [Ls[j].y[n] for n in neighbors_indexs]
                     delta = 0
                     for n in range(self.k):
                         orig_diff = real_n_ys[n] - kNN_n_ys[n]
@@ -86,7 +87,7 @@ class Knn_semi:
                         delta += orig_diff**2 - alt_diff**2
                     deltas.append(delta)
                     
-                sorted_ds = reversed(sorted(deltas))
+                sorted_ds = sorted(deltas)[::-1]
                 pi
                 if sorted_ds[0] > 0:
                     highest = sorted_ds[0]
@@ -96,14 +97,19 @@ class Knn_semi:
                     
                     pi[j] = [(xj,yj)]
                     
-                    Upool.remove(xj)
+                    np.delete(Upool, index)
             
             newLs = Ls
             for i in [0,1]:
                 for px,py in pi[1-i]:
                     newLs[i] = Union(newLs[i],px,py)
             # if no changes need to be made, we have converged 
-            if newLs == Ls:
+            empty = True
+            for a in pi:
+                if a:
+                    empty = False
+            
+            if empty:
                 break
             
             # else make changes, retrain, and replinesh untrained pool
@@ -112,9 +118,10 @@ class Knn_semi:
                 kNNs[i].fit(Ls[i].X, Ls[i].y)
             Upool_indexs = np.random.choice(len(U), pool_size, replace=False)
             Upool = [U[i] for i in Upool_indexs]
-            
+        
+        print kNNs[0].predict(U)
         self.h1 = kNNs[0]
-        self.h2 = kNNs[0]
+        self.h2 = kNNs[1]
         
     """
     Predict function
@@ -152,13 +159,16 @@ def Union(A,x,y):
     # get shape of A and B
     contains = False
     for i in range(len(A.X)):
-        if A.X[i] == x and A.y[i] == y:
+        if (A.X[i] == x).all() and (A.y[i] == y).all():
             contains = True
     
     newA = A
+    m,n = A.X.shape
     if not contains:
-        newA.X += x
-        newA.y += y
+        newX = [A.X[i] if i < m else x for i in range(m + 1)]
+        newy = [A.y[i] if i < m else y for i in range(m + 1)]
+        newA.X = np.array(newX)
+        newA.y = np.array(newy)
     return newA
     
         

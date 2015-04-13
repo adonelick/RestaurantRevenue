@@ -8,9 +8,9 @@ Final Project: Predicting Restaraunt Revenue
 This file is meant to clean up the data we are given.
 
 """
-
+import os
 import numpy as np
-from util import *
+import util
 import time
 from pygeocoder import Geocoder
 import unicodedata
@@ -36,7 +36,7 @@ def preprocessData(trainData, testData, trainPath=None, testPath=None):
 
     largerX = np.copy(trainData.X)
     largerX = np.insert(largerX, 3, 0, axis=1)
-    newTrainData = Data(largerX, np.copy(trainData.y))
+    newTrainData = util.Data(largerX, np.copy(trainData.y))
 
     for i, row in enumerate(trainData.X):
 
@@ -104,14 +104,18 @@ def preprocessData(trainData, testData, trainPath=None, testPath=None):
     newTestData = preprocessing.scale(newTestData)
 
     # If desired, save the preprocesed data files
+    
+    dir = os.path.dirname(util.__file__)
+    fTrain = os.path.join(dir, trainPath)
+    fTest = os.path.join(dir, testPath)
     if trainPath != None:
         X = newTrainData.X
         y = newTrainData.y
         completeData = np.insert(X, X.shape[1], y, axis=1)
-        np.savetxt(trainPath, completeData, delimiter=',')
+        np.savetxt(fTrain, completeData, delimiter=',')
 
     if testPath != None:
-        np.savetxt(testPath, newTestData, delimiter=',')
+        np.savetxt(fTest, newTestData, delimiter=',')
 
     return newTrainData, newTestData
 

@@ -13,6 +13,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+import preprocessing
+import util
 ######################################################################
 # global settings
 ######################################################################
@@ -46,7 +48,6 @@ class Data :
         """Load csv file into X array of features and y array of labels"""
         
         # determine filename
-        import util
         dir = os.path.dirname(util.__file__)
         f = os.path.join(dir, filename)
         
@@ -99,9 +100,9 @@ def load_all_data():
         # If it doesn't exist yet, create it from the original data
         labeled_data = load_data(TRAIN_PATH)
         unlabeled_data = load_data(TEST_PATH, labeled=False).X
-        trainData, testData = preprocessData(labeled_data, unlabeled_data, 
-                                             PREPROCESSED_TRAIN_PATH, 
-                                             PREPROCESSED_TEST_PATH)
+        trainData, testData = preprocessing.preprocessData(labeled_data, unlabeled_data, 
+                                                           PREPROCESSED_TRAIN_PATH, 
+                                                           PREPROCESSED_TEST_PATH)
     
     return trainData, testData
 
@@ -129,8 +130,11 @@ def generateOutputFile(regressor, unlabeledData):
 
         row = np.array([str(i), str(revenue)])
         predictions = np.append(predictions, [row], axis=0)
-
-    with open(PREDICTIONS_PATH, 'wb') as f:
+    
+    
+    dir = os.path.dirname(util.__file__)
+    fs = os.path.join(dir, PREDICTIONS_PATH)
+    with open(fs, 'wb') as f:
         csv.writer(f, delimiter=',').writerows(predictions)
 
     return predictions

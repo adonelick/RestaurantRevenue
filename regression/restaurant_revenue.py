@@ -21,8 +21,8 @@ from sklearn.neighbors import KNeighborsRegressor
 def main():
     
     labeled_data, unlabeled_data = load_all_data()
-    clf = KNeighborsRegressor()
-    clf.fit(labeled_data.X, labeled_data.y)
+    clf = Knn_semi()
+    clf.fit(labeled_data, unlabeled_data)
 
     generateOutputFile(clf, unlabeled_data)
 
