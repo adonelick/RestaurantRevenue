@@ -11,6 +11,7 @@ K nearest neighbors.
 """
 
 import numpy as np
+from util import *
 from sklearn.neighbors import KNeighborsRegressor
 
 """
@@ -58,18 +59,18 @@ class Knn_semi:
         
         # repeat for max_it rounds
         for i in range(max_it):
-            
+            #print i
             # keep list of changes to Ls
             pi = [[],[]]
             # for each training and regressor set
             for j in [0,1]:
-                print j
+                #print j
                 Upool_ys = kNNs[j].predict(Upool)
                 # get the neighbors of each unlabeled point - as indexs of the orig lists
                 Upool_ns = kNNs[j].kneighbors(Upool, return_distance=False)
                 
                 deltas = []
-                for r in range(len(Upool)):
+                for r in xrange(len(Upool)):
                     alt_kNN = KNeighborsRegressor(n_neighbors=self.k,metric=metrics[j])
                     Lj_alt = Union(Ls[j], Upool[r], Upool_ys[r])
                     alt_kNN.fit(Lj_alt.X, Lj_alt.y)
@@ -81,14 +82,13 @@ class Knn_semi:
                     altkNN_n_ys = alt_kNN.predict(neighbors)
                     real_n_ys = [Ls[j].y[n] for n in neighbors_indexs]
                     delta = 0
-                    for n in range(self.k):
+                    for n in xrange(self.k):
                         orig_diff = real_n_ys[n] - kNN_n_ys[n]
                         alt_diff = real_n_ys[n] - altkNN_n_ys[n]
                         delta += orig_diff**2 - alt_diff**2
                     deltas.append(delta)
                     
                 sorted_ds = sorted(deltas)[::-1]
-                pi
                 if sorted_ds[0] > 0:
                     highest = sorted_ds[0]
                     index = deltas.index(highest)
@@ -100,8 +100,10 @@ class Knn_semi:
                     np.delete(Upool, index)
             
             newLs = Ls
+            replenishCount = 0
             for i in [0,1]:
                 for px,py in pi[1-i]:
+                    replenishCount += 1
                     newLs[i] = Union(newLs[i],px,py)
             # if no changes need to be made, we have converged 
             empty = True
@@ -116,10 +118,13 @@ class Knn_semi:
             Ls = newLs
             for i in [0,1]:
                 kNNs[i].fit(Ls[i].X, Ls[i].y)
-            Upool_indexs = np.random.choice(len(U), pool_size, replace=False)
-            Upool = [U[i] for i in Upool_indexs]
+            Upool_indexs = np.random.choice(len(U), replenishCount, replace=False)
+            Upool_addition = [U[i] for i in Upool_indexs]
+            Upool = np.append(Upool, Upool_addition, axis=0)
+            #Upool_indexs = np.random.choice(len(U), pool_size, replace=False)
+            #Upool = [U[i] for i in Upool_indexs]
         
-        print kNNs[0].predict(U)
+        #print kNNs[0].predict(U)
         self.h1 = kNNs[0]
         self.h2 = kNNs[1]
         
@@ -158,17 +163,16 @@ Output:
 def Union(A,x,y):
     # get shape of A and B
     contains = False
-    for i in range(len(A.X)):
+    for i in xrange(len(A.X)):
         if (A.X[i] == x).all() and (A.y[i] == y).all():
             contains = True
     
+    #newA = Data(np.copy(A.X), np.copy(A.y))
     newA = A
-    m,n = A.X.shape
     if not contains:
-        newX = [A.X[i] if i < m else x for i in range(m + 1)]
-        newy = [A.y[i] if i < m else y for i in range(m + 1)]
-        newA.X = np.array(newX)
-        newA.y = np.array(newy)
+        newA.X = np.append(A.X, [x], axis=0)
+        newA.y = np.append(A.y, y)
+
     return newA
     
         

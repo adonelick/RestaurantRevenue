@@ -29,6 +29,7 @@ TEST_PATH = DATA_PATH + "/test.csv"
 PREPROCESSED_TRAIN_PATH = DATA_PATH + "/preprocessed_train.csv"
 PREPROCESSED_TEST_PATH = DATA_PATH + "/preprocessed_test.csv"
 PREDICTIONS_PATH = DATA_PATH + "/submission.csv"
+BEST_SUBMISSION_PATH = DATA_PATH + "/submissionBest.csv"
 
 
 ######################################################################
@@ -125,6 +126,38 @@ def generateOutputFile(regressor, unlabeledData):
 
     predictions = np.array([["Id", "Prediction"]])
     revenues = regressor.predict(unlabeledData)
+
+    for i, revenue in enumerate(revenues):
+
+        row = np.array([str(i), str(revenue)])
+        predictions = np.append(predictions, [row], axis=0)
+    
+    
+    dir = os.path.dirname(util.__file__)
+    fs = os.path.join(dir, PREDICTIONS_PATH)
+    with open(fs, 'wb') as f:
+        csv.writer(f, delimiter=',').writerows(predictions)
+
+    return predictions
+
+def saveRevenues(revenues):
+    """
+    Generates a file for submission to the Kaggle 
+    website. It has the format:
+
+    Id, Prediction
+    0, value0
+    1, value1
+    ...
+    N, valueN
+
+    :param regressor: a class which has been trained to predict 
+                      revenue given a new, unlabeled sample
+    :param unlabeledData: (2-d numpy array) unlabeled samples
+    :return: (2-d numpy array) revenue predictons
+    """
+
+    predictions = np.array([["Id", "Prediction"]])
 
     for i, revenue in enumerate(revenues):
 
