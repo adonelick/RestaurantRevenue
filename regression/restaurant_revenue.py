@@ -13,6 +13,7 @@ from util import *
 from evaluation import *
 from preprocessing import *
 from semi_supervised_knn import *
+from EnsembleCotrainer import *
 from sklearn.svm import SVR
 from sklearn import linear_model
 from sklearn.tree import DecisionTreeRegressor
@@ -20,7 +21,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import scale, normalize
 
 def test():
 
@@ -31,21 +32,24 @@ def test():
     #bestY = scale(bestY)
     #labeled_data.y = scale(labeled_data.y)
 
-    for x in xrange(10, 11):
+    for x in xrange(5, 6):
 
-        clf = AdaBoostRegressor()
+        clf = DecisionTreeRegressor()
         clf.fit(labeled_data.X, labeled_data.y)
 
         newData = Data()
-        newData.X = np.append(labeled_data.X, unlabeled_data[0:85000], axis=0)
-        newData.y = np.append(labeled_data.y, bestY[0:85000])
+        newData.X = np.append(labeled_data.X, unlabeled_data[0:95000], axis=0)
+        newData.y = np.append(labeled_data.y, bestY[0:95000])
 
         for i in xrange(x):
-            clf = AdaBoostRegressor()
+            clf = RandomForestRegressor()
             clf.fit(newData.X, newData.y)
 
-            labels = clf.predict(unlabeled_data)
-            newData.X = np.append(labeled_data.X, unlabeled_data, axis=0)
+            n, d = unlabeled_data.shape
+
+            indices = np.random.choice(np.array(range(n)), size=5000, replace=False)
+            labels = clf.predict(unlabeled_data[indices])
+            newData.X = np.append(labeled_data.X, unlabeled_data[indices], axis=0)
             newData.y = np.append(labeled_data.y, labels)
         
             print rmse(bestY, clf.predict(unlabeled_data))
@@ -55,9 +59,9 @@ def test():
     
 def main():
     
-    # labeled_data, unlabeled_data = load_all_data()
-    # bestData = load_data(BEST_SUBMISSION_PATH)
-    # bestY = bestData.y[1:].astype(np.float)
+    labeled_data, unlabeled_data = load_all_data()
+    bestData = load_data(BEST_SUBMISSION_PATH)
+    bestY = bestData.y[1:].astype(np.float)
 
     # for numClassifiers in xrange(1, 2):
     #     for iterations in xrange(10, 200, 10):
@@ -72,12 +76,18 @@ def main():
     #         print numClassifiers, iterations, rmse(bestY, predictions)
 
 
-    test()
+    # test()
+
+    clf = EnsembleCotrainer()
+    clf.fit(labeled_data, unlabeled_data)
+    labels = clf.predict(unlabeled_data)
+
+    print rmse(bestY, labels)
 
     #clf = DecisionTreeRegressor()
     #clf.fit(labeled_data.X, labeled_data.y)
 
-    #saveRevenues(predictions)
+    saveRevenues(labels)
     #generateOutputFile(clf, unlabeled_data)
 
     
