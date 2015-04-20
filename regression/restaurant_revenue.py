@@ -19,7 +19,8 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.ensemble import RandomForestRegressor
-
+from sklearn.decomposition import PCA
+from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import scale
 
 def test():
@@ -55,7 +56,7 @@ def test():
     
 def main():
     
-    # labeled_data, unlabeled_data = load_all_data()
+    labeled_data, unlabeled_data = load_all_data()
     # bestData = load_data(BEST_SUBMISSION_PATH)
     # bestY = bestData.y[1:].astype(np.float)
 
@@ -72,15 +73,22 @@ def main():
     #         print numClassifiers, iterations, rmse(bestY, predictions)
 
 
-    test()
+    #test()
 
-    #clf = DecisionTreeRegressor()
-    #clf.fit(labeled_data.X, labeled_data.y)
-
+    clf = SemiSupervisedLearner(DecisionTreeRegressor)
+    clf.fit(labeled_data, unlabeled_data, maxIt=10, poolSize=1000)
+    p = clf.predict(unlabeled_data)
+    print p
+    #compare_to_best(p)
+    #  C=1e7, gamma=0.0001
     #saveRevenues(predictions)
-    #generateOutputFile(clf, unlabeled_data)
+    generateOutputFile(clf, unlabeled_data)
 
     
-
+def compare_to_best(predictions):
+    bestData = load_data(BEST_SUBMISSION_PATH)
+    bestY = bestData.y[1:].astype(np.float)
+    print mean_squared_error(bestY, predictions)
+    
 if __name__ == '__main__':
     main()
