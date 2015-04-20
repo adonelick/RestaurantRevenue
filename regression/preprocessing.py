@@ -15,6 +15,7 @@ import time
 from pygeocoder import Geocoder
 import unicodedata
 from sklearn import preprocessing
+from sklearn.decomposition import PCA
 
 def preprocessData(trainData, testData, trainPath=None, testPath=None):
     """
@@ -32,77 +33,120 @@ def preprocessData(trainData, testData, trainPath=None, testPath=None):
 
     # Generate a look-up table for all of the possible 
     # cities' lattitude and longitude in the data points.
-    cityLocations = getCityLocations(trainData, testData)
+    #cityLocations = getCityLocations(trainData, testData)
 
     largerX = np.copy(trainData.X)
-    largerX = np.insert(largerX, 3, 0, axis=1)
+    #largerX = np.insert(largerX, 3, 0, axis=1)
     newTrainData = util.Data(largerX, np.copy(trainData.y))
-
+    
+    
+    
     for i, row in enumerate(trainData.X):
-
-        # Skip the first row, which is the CSV file's header
+#
+#        # Skip the first row, which is the CSV file's header
         if i is 0:
             continue
-
-        # Converts the time from a string into a number
-        openDate = convertDateToFloat(row[1])
-
-        # Converts the city into a lattitude and longitude
-        lattitude, longitude = cityLocations[row[2]]
-
-        cityGroup = 0
-        if row[3] == 'Big Cities':
-            cityGroup = 1
-            
-        dataType = 0
-        if row[4] == 'IL':
-            dataType = 1
-
-        newTrainData.X[i][1] = openDate
-        newTrainData.X[i][2] = lattitude
-        newTrainData.X[i][3] = longitude
-        newTrainData.X[i][4] = cityGroup
-        newTrainData.X[i][5] = dataType
-
+#
+#        # Converts the time from a string into a number
+        #openDate = convertDateToFloat(row[1])/1000
+        date = row[1]
+        fields = date.split('/')
+        month = fields[0]
+        day = fields[1]
+        year = fields[2]
+#        # Converts the city into a lattitude and longitude
+#        lattitude, longitude = cityLocations[row[2]]
+#
+#        cityGroup = 0
+#        if row[3] == 'Big Cities':
+#            cityGroup = 1
+#            
+#        dataType = 0
+#        if row[4] == 'IL':
+#            dataType = 1
+#
+        newTrainData.X[i][0] = month
+        newTrainData.X[i][1] = year
+#        newTrainData.X[i][2] = lattitude
+#        newTrainData.X[i][3] = longitude
+#        newTrainData.X[i][4] = cityGroup
+#        newTrainData.X[i][5] = dataType
+    
+    
     # Convert all other entries from strings to floats
-    newTrainData.X = newTrainData.X[1:].astype(np.float)
-    newTrainData.X = preprocessing.scale(newTrainData.X)
-    newTrainData.y = newTrainData.y[1:].astype(np.float)
+    newTrainData.X = newTrainData.X[1:]#.astype(np.float)
+    #newTrainData.X = preprocessing.scale(newTrainData.X)
+    newTrainData.y = newTrainData.y[1:]#.astype(np.float)
 
 
     # Now preprocess the testing (unlabeled) data
     newTestData = np.copy(testData)
-    newTestData = np.insert(newTestData, 3, 0, axis=1)
+    #newTestData = np.insert(newTestData, 3, 0, axis=1)
     for i, row in enumerate(testData):
-
-        # Skip the first row, which is the CSV file's header
+#
+#        # Skip the first row, which is the CSV file's header
         if i is 0:
             continue
+#
+#        # Converts the time from a string into a number
+        #openDate = convertDateToFloat(row[1])/1000
+        date = row[1]
+        fields = date.split('/')
+        month = fields[0]
+        day = fields[1]
+        year = fields[2]
+#        # Converts the city into a lattitude and longitude
+#        lattitude, longitude = cityLocations[row[2]]
+#
+#        cityGroup = 0
+#        if row[3] == 'Big Cities':
+#            cityGroup = 1
+#        
+#        # No idea what this is... 
+#        dataType = 0
+#        if row[4] == 'IL':
+#            dataType = 1
+#
+        newTestData[i][0] = month
+        newTestData[i][1] = year
+#        newTestData[i][2] = lattitude
+#        newTestData[i][3] = longitude
+#        newTestData[i][4] = cityGroup
+#        newTestData[i][5] = dataType
 
-        # Converts the time from a string into a number
-        openDate = convertDateToFloat(row[1])
+    newTestData = newTestData[1:]#.astype(np.float)
+    #newTestData = newTestData[:,1:]
+    #newTestData = preprocessing.scale(newTestData)
+    for col in range(newTestData.shape[1]):
+        trainCol = newTrainData.X[:,col]
+        testCol = newTestData[:,col]
+        le = preprocessing.LabelEncoder()
+        le.fit(np.concatenate((trainCol,testCol)))
+        newTrainData.X[:,col] = le.transform(trainCol)
+        newTestData[:,col] = le.transform(testCol)
+  
+    newTrainData.X = newTrainData.X.astype(int)
+    newTestData = newTestData.astype(int)  
+    
+    enc = preprocessing.OneHotEncoder()
+    enc.fit(np.concatenate((newTrainData.X, newTestData), axis=0))
+    
+    newTrainData.X = enc.transform(newTrainData.X).toarray()
+    newTestData = enc.transform(newTestData).toarray()
 
-        # Converts the city into a lattitude and longitude
-        lattitude, longitude = cityLocations[row[2]]
-
-        cityGroup = 0
-        if row[3] == 'Big Cities':
-            cityGroup = 1
-        
-        # No idea what this is... 
-        dataType = 0
-        if row[4] == 'IL':
-            dataType = 1
-
-        newTestData[i][1] = openDate
-        newTestData[i][2] = lattitude
-        newTestData[i][3] = longitude
-        newTestData[i][4] = cityGroup
-        newTestData[i][5] = dataType
-
-    newTestData = newTestData[1:].astype(np.float)
-    newTestData = preprocessing.scale(newTestData)
-
+    #newTrainData.X = newTrainData.X.astype(np.float)
+    #newTestData = newTestData.astype(np.float)  
+    # apply PCA
+    #norm = preprocessing.Normalizer()
+    #norm.fit(np.concatenate((newTrainData.X, newTestData), axis=0))
+    #newTrainData.X = norm.transform(newTrainData.X)
+    #newTestData = norm.transform(newTestData)
+    
+    print newTrainData.X
+    pca = PCA()
+    pca.fit(np.concatenate((newTrainData.X, newTestData), axis=0))
+    #newPCATrainData = util.Data(pca.transform(newTrainData.X), newTrainData.y)
+    #newPCATestData = pca.transform(newTestData)
     # If desired, save the preprocesed data files
     
     dir = os.path.dirname(util.__file__)
