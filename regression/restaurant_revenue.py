@@ -20,14 +20,11 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.ensemble import RandomForestRegressor
-<<<<<<< HEAD
 
 from sklearn.preprocessing import scale, normalize
-=======
 from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import scale
->>>>>>> bd4802fa48dcd9d32165986c7c4698a79591f350
 
 def test():
 
@@ -97,7 +94,7 @@ def main():
     #clf = DecisionTreeRegressor()
     #clf.fit(labeled_data.X, labeled_data.y)
 
-    saveRevenues(labels)
+    #saveRevenues(labels)
     #generateOutputFile(clf, unlabeled_data)
     #test()
 

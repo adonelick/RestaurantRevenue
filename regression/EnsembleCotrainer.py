@@ -11,7 +11,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 class EnsembleCotrainer:
 
-    def __init__(self, n_estimators=200, n_iterations=100):
+    def __init__(self, n_estimators=10, n_iterations=100):
         
         self.n_estimators = n_estimators
         self.n_iterations = n_iterations
@@ -28,7 +28,7 @@ class EnsembleCotrainer:
             clf.fit(labeledData.X, labeledData.y)
             n, d = unlabeledData.shape
 
-            indices = np.random.choice(np.array(range(n)), size=100, replace=False)
+            indices = np.random.choice(np.array(range(n)), size=1000, replace=False)
             unlabeledTrainingData = unlabeledData[indices]
 
             for j in xrange(self.n_iterations):

@@ -29,7 +29,7 @@ TEST_PATH = DATA_PATH + "/test.csv"
 PREPROCESSED_TRAIN_PATH = DATA_PATH + "/preprocessed_train.csv"
 PREPROCESSED_TEST_PATH = DATA_PATH + "/preprocessed_test.csv"
 PREDICTIONS_PATH = DATA_PATH + "/submission.csv"
-BEST_SUBMISSION_PATH = DATA_PATH + "/submissionBest.csv"
+BEST_SUBMISSION_PATH = DATA_PATH + "/submission_knn_it_10.csv"
 
 
 ######################################################################
