@@ -78,6 +78,21 @@ def load_data(filename, labeled=True) :
     data.load(filename, labeled)
     return data
 
+def load_visualization_data():
+    """
+    Loads in the labeled (training) and unlabeled (testing)
+    data. The function automatically preprocesses the 
+    data according to the preprocessing file.
+
+    :return: (tuple of Data, 2-d numpy array) Preprocessed training/test data
+    """
+    # If it doesn't exist yet, create it from the original data
+    labeled_data = load_data(TRAIN_PATH)
+    unlabeled_data = load_data(TEST_PATH, labeled=False).X
+    trainData, testData = preprocessing.preprocessDataForVisualization(labeled_data, unlabeled_data)
+    return trainData, testData
+
+
 def load_all_data():
     """
     Loads in the labeled (training) and unlabeled (testing)

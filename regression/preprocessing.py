@@ -17,6 +17,106 @@ import unicodedata
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 
+
+def preprocessDataForVisualization(trainData, testData):
+    """
+    Preprocesses the train and test data to remove strings,
+    time stamps, and other non-numerical valuess. However,
+    unlike the preprocessData function, this function 
+    simply maps categorical values to numbers, not categories.
+    This function is meant to provide data for visualization.
+
+    :param trainData: (Data object)
+    :param testData: (2-d numpy array)
+    :return: (tuple of Data, 2-d numpy array) Preprocessed training/test data
+    """
+
+
+    # Generates a mapping from city names to numbers (for plotting)
+    cities = {}
+    for row in trainData.X:
+        if not cities.has_key(row[2]):
+            cities[row[2]] = len(cities)
+
+    for row in testData:
+        if not cities.has_key(row[2]):
+            cities[row[2]] = len(cities)
+
+    largerX = np.copy(trainData.X)
+    newTrainData = util.Data(largerX, np.copy(trainData.y))
+    
+    for i, row in enumerate(trainData.X):
+
+        # Skip the first row, which is the CSV file's header
+        if i is 0:
+            continue
+
+        # Converts the time from a string into a number
+        date = row[1]
+        fields = date.split('/')
+        month = fields[0]
+        day = fields[1]
+        year = fields[2]
+
+        cityGroup = 0
+        if row[3] == 'Big Cities':
+            cityGroup = 1
+            
+        dataType = 0
+        if row[4] == 'IL':
+            dataType = 1
+
+        newTrainData.X[i][0] = month
+        newTrainData.X[i][1] = year
+        newTrainData.X[i][2] = cities[row[2]]
+        newTrainData.X[i][3] = cityGroup
+        newTrainData.X[i][4] = dataType
+    
+    
+    # Convert all other entries from strings to floats
+    newTrainData.X = newTrainData.X[1:].astype(np.float)
+    newTrainData.y = newTrainData.y[1:].astype(np.float)
+
+
+    # Now preprocess the testing (unlabeled) data
+    newTestData = np.copy(testData)
+    for i, row in enumerate(testData):
+
+        # Skip the first row, which is the CSV file's header
+        if i is 0:
+            continue
+
+        # Converts the time from a string into a number
+        date = row[1]
+        fields = date.split('/')
+        month = fields[0]
+        day = fields[1]
+        year = fields[2]
+
+        cityGroup = 0
+        if row[3] == 'Big Cities':
+            cityGroup = 1
+            
+        dataType = 0
+        if row[4] == 'IL':
+            dataType = 1
+
+        newTestData[i][0] = month
+        newTestData[i][1] = year
+        newTestData[i][2] = cities[row[2]]
+        newTestData[i][3] = cityGroup
+        newTestData[i][4] = dataType
+    
+    
+    # Convert all other entries from strings to floats
+    newTrainData.X = newTrainData.X[1:].astype(np.float)
+    newTrainData.y = newTrainData.y[1:].astype(np.float)
+    newTestData = newTestData[1:].astype(np.float)
+
+    return newTrainData, newTestData    
+
+
+
 def preprocessData(trainData, testData, trainPath=None, testPath=None):
     """
     Preprocesses the train and test data files to 
